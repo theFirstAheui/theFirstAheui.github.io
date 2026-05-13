@@ -1,0 +1,35 @@
+:root { --bg: #1a1a1a; --text: #e0e0e0; --accent: #00ff95; --cmd: #ff79c6; --mem: #8be9fd; --num: #f1fa8c; --line-active: rgba(255, 255, 0, 0.2); --mem-hover: #4e4e4e; }
+body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+header { padding: 10px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #222; }
+
+.main { display: flex; flex: 1; overflow: hidden; }
+#code-container { flex: 1; position: relative; background: #282a36; overflow: hidden; border-right: 1px solid #333; }
+
+#editor, #highlight-view, #debug-view { 
+    width: 100%; height: 100%; box-sizing: border-box; padding: 20px; 
+    font-size: 18px; line-height: 1.8; font-family: inherit; 
+    position: absolute; top: 0; left: 0; white-space: pre-wrap; word-break: break-all; margin: 0; border: none; outline: none; 
+}
+
+#editor { background: transparent; color: transparent; caret-color: white; z-index: 2; resize: none; overflow-y: auto; }
+#highlight-view { z-index: 1; pointer-events: none; overflow: hidden; } 
+#debug-view { z-index: 3; background: #282a36; display: none; overflow-y: auto; }
+
+.line { display: block; border-radius: 3px; min-height: 1.8em; }
+.line.active { background: var(--line-active); box-shadow: inset 5px 0 0 var(--accent); }
+.tok-mem { color: var(--mem); border-bottom: 1px dashed transparent; transition: background 0.1s; border-radius: 2px; }
+.tok-mem.highlight { background: var(--mem-hover) !important; border-bottom-color: var(--mem); }
+.tok-cmd { color: var(--cmd); font-weight: bold; }
+.tok-num { color: var(--num); }
+.tok-comment { color: #6272a4; font-style: italic; }
+.tok-op { color: white; }
+
+#sidebar { width: 320px; background: #21222c; display: flex; flex-direction: column; }
+#console { flex: 1; padding: 15px; font-size: 14px; overflow-y: auto; background: #191a21; color: #50fa7b; border-bottom: 1px solid #333; white-space: pre-wrap; word-break: break-all; }
+#memory-view { height: 250px; padding: 15px; font-size: 13px; overflow-y: auto; border-top: 1px solid #333; }
+
+.controls { padding: 10px; display: flex; gap: 8px; }
+button { background: #44475a; color: white; border: 1px solid #6272a4; padding: 6px 15px; cursor: pointer; border-radius: 4px; font-size: 13px; }
+button.primary { background: var(--accent); color: #000; border: none; font-weight: bold; }
+
+.status-bar { padding: 5px 20px; font-size: 12px; background: #222; border-top: 1px solid #333; display: flex; justify-content: space-between; }
