@@ -173,7 +173,7 @@
         </section>
 
         <section id="syntax">
-            <h2>문법 가이드</h2>
+            <h2>문법 - 명령어</h2>
             <table class="syntax-table">
                 <thead>
                     <tr>
@@ -184,34 +184,76 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><code>그...</code></td>
-                        <td>메모리 번호를 지정합니다. '그'의 개수가 곧 주소입니다.</td>
-                        <td><code>그그거</code> (2번 번지)</td>
+                        <td><code>그</code></td>
+                        <td>리터럴 1입니다. '그'의 개수가 곧 값입니다.</td>
+                        <td><code>그그</code> (값 2)</td>
+                    </tr>
+                    <tr>
+                        <td><code>그거</code></td>
+                        <td>메모리 1번입니다. '그'의 개수로 메모리 번호를 판정합니다.</td>
+                        <td><code>그그거</code> (메모리 2번)</td>
                     </tr>
                     <tr>
                         <td><code>뭐더라</code></td>
                         <td>값을 대입하거나 계산 결과를 저장합니다.</td>
-                        <td><code>그거 뭐더라 그그</code> (1번에 2 저장)</td>
+                        <td><code>그거 뭐더라 그그</code> (메모리 1번에 2 저장)</td>
                     </tr>
                     <tr>
                         <td><code>뭐지</code></td>
                         <td>사용자로부터 입력을 받습니다.</td>
-                        <td><code>그거 뭐지</code></td>
+                        <td><code>그거 뭐지</code>(메모리 1번에 입력)</td>
                     </tr>
                     <tr>
                         <td><code>뭐냐</code></td>
                         <td>해당 주소의 값을 숫자로 출력합니다.</td>
-                        <td><code>그거 뭐냐</code></td>
+                        <td><code>그거 뭐냐</code>(메모리 1번 출력)</td>
                     </tr>
                     <tr>
                         <td><code>있잖아</code></td>
-                        <td>조건부 점프(Loop/If). 조건이 참이면 지정한 칸만큼 이동합니다.</td>
-                        <td><code>그거 있잖아</code></td>
+                        <td>점프(Loop/If). 지정한 칸만큼 이동합니다.</td>
+                        <td><code>그거 있잖아</code>(메모리 1번에 저장된 값만큼 아래로 이동)</td>
                     </tr>
                     <tr>
                         <td><code>진짜뭐냐</code></td>
                         <td>해당 주소의 값을 ASCII 문자로 출력합니다.</td>
-                        <td><code>그거 진짜뭐냐</code></td>
+                        <td><code>그거 진짜뭐냐</code>(메모리 1번의 값에 해당하는 char 출력)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; color: var(--text-secondary);">
+                * 메모리(<code>그거</code>) 뒤에 <code>거</code>를 붙여 {(메모리 1번의 값)번 메모리의 값}을 참조하세요!
+            </p>
+            <p style="margin-top: 15px; color: var(--text-secondary);">
+                * <code>있잖아</code>의 값에 음수를 주어 윗줄로 올려보낼 수 있습니다!
+            </p>
+        </section>
+
+        <section id="syntax">
+            </p>
+            <h2>문법 - 연산</h2>
+            <table class="syntax-table">
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>,</code> <code>,,</code></td>
+                        <td>덧셈,뺄셈 연산</td>
+                        <td><code>그,그거</code> 1+(메모리 1번의 값)</td>
+                    </tr>
+                    <tr>
+                        <td><code>.</code> <code>..</code> <code>...</code></td>
+                        <td>곱셈, 몫, 나머지 연산</td>
+                        <td><code>그.그거</code> 1*(메모리 1번의 값)</td>
+                    </tr>
+                    <tr>
+                        <td><code>아</code> <code>어</code></td>
+                        <td>괄호</td>
+                        <td><code>아 그그,그그그 아 . 그그</code> (2+3)*2</td>
                     </tr>
                 </tbody>
             </table>
