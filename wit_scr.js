@@ -387,6 +387,17 @@ function updateMemoryView() {
         }).join(''); 
 }
 
+// --- 페이지 이탈 방지 (새로고침/닫기 경고) ---
+window.addEventListener('beforeunload', function (e) {
+    // 에디터에 코드가 단 한 글자라도 작성되어 있을 때만 경고창을 띄웁니다.
+    // (빈 화면일 때는 편하게 새로고침할 수 있도록 하기 위함)
+    if (editor.value.trim() !== '') {
+        // 브라우저 표준에 따른 경고창 호출 방식
+        e.preventDefault();
+        e.returnValue = ''; 
+    }
+});
+
 // 신규 예제 코드
 editor.value = "";
 updateHighlight();
