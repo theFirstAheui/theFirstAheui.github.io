@@ -4,6 +4,8 @@ let pc = 0;
 let isDebugMode = false;
 let currentOutSpan = null; // 줄바꿈 없는 출력을 위한 변수
 let isRunning = false;
+let pendingInputResolve = null;
+let pendingInputField = null;
 
 const editor = document.getElementById('editor');
 const highlightView = document.getElementById('highlight-view');
@@ -43,19 +45,55 @@ function resolveAddr(memStr) {
     return addr;
 }
 
-// --- Ghost Hover 로직 ---
+// --- Ghost Hover 로직 개선 (최종 수정본) ---
+let currentHoverAddr = null;
+
 editor.addEventListener('mousemove', (e) => {
     if (isDebugMode) return;
+    
+    // 1. 에디터의 마우스 이벤트를 일시적으로 끄기 (밑을 투시하기 위해)
     editor.style.pointerEvents = 'none';
+    
+    // 💡 2. 핵심: elementFromPoint가 글자를 인식할 수 있도록 highlight-view 잠깐 켜기!
+    highlightView.style.pointerEvents = 'auto';
+    
+    // 3. 그 위치의 아래에 있는 요소 가져오기
     const el = document.elementFromPoint(e.clientX, e.clientY);
+    
+    // 4. 즉시 두 요소 모두 원상 복구
+    highlightView.style.pointerEvents = 'none';
     editor.style.pointerEvents = 'auto';
 
-    if (el && el.classList.contains('tok-mem')) hoverMem(el.getAttribute('data-addr'));
-    else clearHover();
+    // 5. 요소가 메모리 토큰인지 확인하고 하이라이팅
+    if (el && el.classList.contains('tok-mem')) {
+        hoverMem(el.getAttribute('data-addr'));
+    } else {
+        clearHover();
+    }
 });
 
-function hoverMem(addr) { document.querySelectorAll(`.tok-mem[data-addr="${addr}"]`).forEach(el => el.classList.add('highlight')); }
-function clearHover() { document.querySelectorAll('.tok-mem.highlight').forEach(el => el.classList.remove('highlight')); }
+// 마우스가 에디터 밖으로 나가면 하이라이트 깔끔하게 지우기
+editor.addEventListener('mouseleave', clearHover);
+
+function hoverMem(addr) { 
+    if (currentHoverAddr === addr) return; 
+    
+    clearHover(); 
+    currentHoverAddr = addr;
+    
+    document.querySelectorAll(`.tok-mem[data-addr="${addr}"]`).forEach(el => {
+        el.classList.add('highlight');
+    }); 
+}
+
+function clearHover() { 
+    if (currentHoverAddr === null) return; 
+    
+    document.querySelectorAll('.tok-mem.highlight').forEach(el => {
+        el.classList.remove('highlight');
+    }); 
+    currentHoverAddr = null;
+}
 
 // --- 토큰 및 렌더링 ---
 function tokenizeLine(text) {
@@ -116,6 +154,61 @@ function toggleMode() {
         document.getElementById('btn-mode').innerText = '⚙️ 실행 모드 전환';
         document.getElementById('status-text').innerText = '모드: 편집 중';
     }
+}
+
+// --- 콘솔 입력 대기 함수 ---
+function requestConsoleInput(promptMsg) {
+    return new Promise((resolve) => {
+        currentOutSpan = null; // 줄바꿈을 유도하기 위해 초기화
+
+        document.getElementById('btn-step').disabled = true;
+
+        const inputContainer = document.createElement('div');
+        inputContainer.style.color = "#8be9fd"; // 입력 안내 메시지 색상 (Cyan)
+        
+        const promptSpan = document.createElement('span');
+        promptSpan.innerText = promptMsg + " ";
+        
+        const inputField = document.createElement('input');
+        inputField.type = 'text';
+        // 에디터 테마에 맞춘 입력칸 스타일
+        inputField.style.background = 'transparent';
+        inputField.style.border = 'none';
+        inputField.style.borderBottom = '1px solid #8be9fd';
+        inputField.style.color = '#f8f8f2';
+        inputField.style.outline = 'none';
+        inputField.style.fontFamily = 'inherit';
+        inputField.style.width = '50px';
+        
+        inputContainer.appendChild(promptSpan);
+        inputContainer.appendChild(inputField);
+        consoleElem.appendChild(inputContainer);
+        consoleElem.scrollTop = consoleElem.scrollHeight;
+        
+        inputField.focus(); // 생성되자마자 바로 입력할 수 있게 포커스
+
+        //강제 중지 시 제어하기 위해 전역 변수에 현재 상태 저장
+        pendingInputField = inputField;
+        pendingInputResolve = resolve;
+        
+        // Enter 키 입력 감지
+        inputField.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = inputField.value;
+                // 입력을 완료하면 입력칸(input)을 일반 텍스트(span)로 바꿔서 기록을 남김
+                const textSpan = document.createElement('span');
+                textSpan.style.color = '#f1fa8c'; // 입력된 값 색상 (Yellow)
+                textSpan.innerText = val;
+                inputContainer.replaceChild(textSpan, inputField);
+
+                document.getElementById('btn-step').disabled = false; //입력 종료시 디버깅 중 다음단계 버튼 활성화
+                pendingInputField = null;
+                pendingInputResolve = null;
+
+                resolve(val); // Promise 완료, 값 반환
+            }
+        });
+    });
 }
 
 // --- 수식 파서 ---
@@ -184,7 +277,8 @@ async function takeStep() {
                 // 문자 1개를 입력받아 ASCII/유니코드 저장
                 let m = fullLine.replace("진짜뭐지", "").trim(); 
                 let targetAddr = resolveAddr(m);
-                let val = prompt(`[${targetAddr}번] 문자 입력 (한 글자):`); 
+                let val = await requestConsoleInput(`[${targetAddr}번] 문자 입력:`);
+                if (val === null) return false; // 입력 취소(강제중지) 시 스텝 종료
                 memory[targetAddr] = (val && val.length > 0) ? val.charCodeAt(0) : 0; 
             }
             else if (fullLine.includes("진짜뭐냐")) { 
@@ -194,7 +288,8 @@ async function takeStep() {
             else if (fullLine.includes("뭐지")) { 
                 let m = fullLine.replace("뭐지", "").trim(); 
                 let targetAddr = resolveAddr(m);
-                let val = prompt(`[${targetAddr}번] 숫자 입력:`); 
+                let val = await requestConsoleInput(`[${targetAddr}번] 숫자 입력:`);
+                if (val === null) return false; // 💡 입력 취소(강제중지) 시 스텝 종료
                 memory[targetAddr] = parseInt(val) || 0; 
             }
             else if (fullLine.includes("뭐냐")) { 
@@ -256,6 +351,20 @@ function stopRun(isForced = true) {
     document.getElementById('btn-run').style.display = 'inline-block';
     document.getElementById('btn-stop').style.display = 'none';
     document.getElementById('btn-step').disabled = false;
+
+    // 대기 중인 입력창이 있다면 입력란을 막고 실행 취소
+    if (pendingInputResolve) {
+        if (pendingInputField && pendingInputField.parentNode) {
+            const cancelSpan = document.createElement('span');
+            cancelSpan.style.color = '#ff5555';
+            cancelSpan.innerText = "[입력 취소됨]";
+            pendingInputField.parentNode.replaceChild(cancelSpan, pendingInputField);
+        }
+        pendingInputResolve(null); // null을 반환하여 Promise 대기 해제
+        pendingInputResolve = null;
+        pendingInputField = null;
+    }
+
     if(isForced) log("\n>>> 사용자에 의해 강제 중지됨", "#ff5555");
 }
 

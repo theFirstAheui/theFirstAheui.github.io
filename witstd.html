@@ -1,42 +1,47 @@
-<html lang="ko"><head>
+<html lang="ko">
+
+<head>
     <meta charset="UTF-8">
-    <title>그뭐냐스튜디오 v1.6</title>
+    <title>그뭐냐스튜디오 v1.7</title>
     <link rel="stylesheet" href="std_style.css">
 </head>
+
 <body>
+    <header>
+        <div style="font-weight: bold; color: var(--accent);">🌐 그뭐냐스튜디오 <span style="font-size: 0.8em; opacity: 0.5;">그뭐냐 실행/디버깅 및 편집기</span></div>
+        <div class="controls">
+            <button id="btn-mode" class="primary" onclick="toggleMode()">⚙️ 실행 모드 전환</button>
+            <button id="btn-step" onclick="takeStep()" style="display:none;">➡ 다음 단계</button>
+            <button id="btn-run" onclick="runAll()">▶ 전체 실행</button>
+            <button id="btn-stop" onclick="stopRun()" style="display:none; background:#ff5555; color:white; border:none;">⏹ 강제 중지</button>
+            <button onclick="resetAll()">🧹 초기화</button>
+        </div>
+    </header>
 
-<header>
-    <div style="font-weight: bold; color: var(--accent);">🌐 그뭐냐스튜디오 <span style="font-size: 0.8em; opacity: 0.5;">그뭐냐 실행/디버깅 및 편집기</span></div>
-    <div class="controls">
-        <button id="btn-mode" class="primary" onclick="toggleMode()">⚙️ 실행 모드 전환</button>
-        <button id="btn-step" onclick="takeStep()" style="display:none;">➡ 다음 단계</button>
-        <button id="btn-run" onclick="runAll()">▶ 전체 실행</button>
-        <button id="btn-stop" onclick="stopRun()" style="display:none; background:#ff5555; color:white; border:none;">⏹ 강제 중지</button>
-        <button onclick="resetAll()">🧹 초기화</button>
-    </div>
-</header>
-
-<div class="main">
-    <div id="code-container">
-        <textarea id="editor" spellcheck="false" oninput="updateHighlight()" onscroll="syncScroll()" style="pointer-events: auto;"></textarea>
-        <div id="highlight-view"></div>
-        <div id="debug-view"></div>
-    </div>
-    
-    <div id="sidebar">
-        <div id="console"><div style="color: rgb(80, 250, 123);"># 준비 완료</div></div>
-        <div id="memory-view">
-            <h4 style="margin:0 0 10px 0; font-size:11px; color:#bd93f9;">MEMORY DUMP</h4>
-            <div id="mem-content"></div>
+    <div class="main">
+        <div id="code-container">
+            <textarea id="editor" spellcheck="false" oninput="updateHighlight()" onscroll="syncScroll()" style="pointer-events: auto;"></textarea>
+            <div id="highlight-view"></div>
+            <div id="debug-view"></div>
+        </div>
+        
+        <div id="sidebar">
+            <div id="console">
+                <div style="color: rgb(80, 250, 123);"># 준비 완료</div>
+            </div>
+            <div id="memory-view">
+                <h4 style="margin:0 0 10px 0; font-size:11px; color:#bd93f9;">MEMORY DUMP</h4>
+                <div id="mem-content"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="status-bar">
-    <span id="status-text">모드: 편집 중</span>
-    <span id="line-info">ⓒlambda Studios. 2026. All Rights Reserved. </span>
-</div>
+    <div class="status-bar">
+        <span id="status-text">모드: 편집 중</span>
+        <span id="line-info">ⓒlambda Studios. 2026. All Rights Reserved. </span>
+    </div>
 
-<script src="wit_scr.js"></script>
+    <script src="wit_scr.js"></script>
+</body>
 
-</body></html>
+</html>
