@@ -196,10 +196,13 @@ function getValFromTokens(toks) {
     function parseAtom() {
         let t = consume();
         if (!t) return 0;
-
+    
         if (t.type === 'bracket' && t.val === '아') {
             let res = parseExpr();
-            consume(); // 어 소비
+            // 어를 소비하기 전에 peek로 확인
+            if (peek() && peek().type === 'bracket' && peek().val === '어') {
+                consume(); // 어 소비
+            }
             while (peek() && peek().type === 'geo') {
                 const geoTok = consume();
                 for (let i = 0; i < geoTok.val.length; i++) {
@@ -208,7 +211,7 @@ function getValFromTokens(toks) {
             }
             return res;
         }
-
+    
         if (t.type === 'num') {
             let val = t.val.length;
             while (peek() && peek().type === 'geo') {
@@ -219,7 +222,7 @@ function getValFromTokens(toks) {
             }
             return val;
         }
-
+    
         return 0;
     }
 
