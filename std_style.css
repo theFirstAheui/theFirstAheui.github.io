@@ -15,7 +15,7 @@ header { padding: 10px 20px; border-bottom: 1px solid #333; display: flex; justi
 #highlight-view { z-index: 1; pointer-events: none; overflow: hidden; } 
 #debug-view { z-index: 3; background: #282a36; display: none; overflow-y: auto; }
 
-.line { display: block; border-radius: 3px; min-height: calc(18px * 1.8); }
+.line { display: block; border-radius: 3px; min-height: 1.8em; }
 .line.active { background: var(--line-active); box-shadow: inset 5px 0 0 var(--accent); }
 .tok-mem { color: var(--mem); border-bottom: 1px dashed transparent; transition: background 0.1s; border-radius: 2px; }
 .tok-mem.highlight { background: var(--mem-hover) !important; border-bottom-color: var(--mem); }
