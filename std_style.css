@@ -6,13 +6,13 @@ header { padding: 10px 20px; border-bottom: 1px solid #333; display: flex; justi
 #code-container { flex: 1; position: relative; background: #282a36; overflow: hidden; border-right: 1px solid #333; }
 
 #editor, #highlight-view, #debug-view { 
-    width: 100%; height: 100%; box-sizing: border-box; padding: 10px; 
+    width: 100%; height: 100%; box-sizing: border-box; padding: 20px; 
     font-size: 18px; line-height: 1.8; font-family: inherit; 
     position: absolute; top: 0; left: 0; white-space: pre-wrap; word-break: break-all; margin: 0; border: none; outline: none; 
 }
 
 #editor { background: transparent; color: transparent; caret-color: white; z-index: 2; resize: none; overflow-y: scroll; }
-#highlight-view { z-index: 1; pointer-events: none; overflow: hidden; padding-right: 27px;} 
+#highlight-view { z-index: 1; pointer-events: none; overflow: hidden; padding-right: 37px;} 
 #debug-view { z-index: 3; background: #282a36; display: none; overflow-y: auto; }
 
 .line { display: block; border-radius: 3px; min-height: 1.8em; }
