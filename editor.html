@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>그뭐냐스튜디오 v1.8</title>
+    <link rel="stylesheet" href="editor_style.css">
+</head>
+
+<body>
+    <header>
+        <div class="brand">🌐 그뭐냐스튜디오 <span class="brand-sub">그뭐냐 실행/디버깅 및 편집기</span></div>
+        <div class="controls">
+            <select id="example-select" title="예제 불러오기">
+                <option value="">📂 예제…</option>
+                <option value="sum">두 수의 합</option>
+                <option value="fib">n번째 피보나치</option>
+                <option value="sort">버블 정렬</option>
+                <option value="echo">유니코드 에코</option>
+            </select>
+            <button id="btn-mode" class="primary">⚙️ 실행 모드 전환</button>
+            <button id="btn-step" style="display:none;">➡ 다음 단계</button>
+            <button id="btn-run">▶ 전체 실행</button>
+            <button id="btn-stop" class="danger" style="display:none;">⏹ 강제 중지</button>
+            <button id="btn-reset">🧹 초기화</button>
+        </div>
+    </header>
+
+    <div class="main">
+        <div id="code-container">
+            <textarea id="editor" spellcheck="false"></textarea>
+            <div id="highlight-view"></div>
+            <div id="debug-view"></div>
+        </div>
+
+        <div id="sidebar">
+            <div class="panel" id="console-panel">
+                <div class="panel-head">CONSOLE</div>
+                <div id="console">
+                    <div class="c-info"># 준비 완료</div>
+                </div>
+            </div>
+
+            <div class="panel" id="input-panel">
+                <div class="panel-head">입력 (STDIN) <span class="hint">— 실행 전 한 번에 입력</span></div>
+                <textarea id="stdin" spellcheck="false" placeholder="여기에 모든 입력을 미리 적어두세요. 예) 3 5"></textarea>
+                <div id="stdin-status"></div>
+            </div>
+
+            <div class="panel" id="memory-view">
+                <div class="panel-head">MEMORY DUMP</div>
+                <div id="mem-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="status-text">모드: 편집 중</span>
+        <span id="step-info">스텝 0</span>
+        <span id="line-info">ⓒ lambda Studios. 2026. All Rights Reserved.</span>
+    </div>
+
+    <script src="editor_script.js"></script>
+</body>
+
+</html>
