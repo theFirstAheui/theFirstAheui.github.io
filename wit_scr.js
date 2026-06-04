@@ -32,17 +32,12 @@ function log(msg, color="#50fa7b") {
 }
 
 // --- 주소 해결기 ---
+// 아어거 포함 처리: num → 주소 설정, geo → dereference, bracket(아/어)은 무시
 function resolveAddrFromTokens(tokens) {
-    let geoCount = 0;
-    let i = tokens.length - 1;
-    while (i >= 0 && tokens[i].type === 'geo') {
-        geoCount += tokens[i].val.length;
-        i--;
-    }
-    const exprTokens = tokens.slice(0, i + 1);
-    let addr = exprTokens.length === 0 ? 0 : getValFromTokens(exprTokens);
-    for (let j = 0; j < geoCount - 1; j++) {
-        addr = memory[addr] ?? 0;
+    let addr = 0;
+    for (const t of tokens) {
+        if (t.type === 'num')      addr = t.val.length;
+        else if (t.type === 'geo') addr = memory[addr] ?? 0;
     }
     return addr;
 }
@@ -146,7 +141,8 @@ function toggleMode() {
     }
 }
 
-function requestConsoleInput(promptMsg) {
+// isChar: 문자 입력 모드 (빈 입력 = 줄바꿈 = 건너뜀)
+function requestConsoleInput(promptMsg, isChar = false) {
     return new Promise((resolve) => {
         currentOutSpan = null;
         document.getElementById('btn-step').disabled = true;
@@ -175,12 +171,13 @@ function requestConsoleInput(promptMsg) {
                 const val = inputField.value;
                 const textSpan = document.createElement('span');
                 textSpan.style.color = '#f1fa8c';
-                textSpan.innerText = val;
+                textSpan.innerText = val || (isChar ? '(skip)' : '0');
                 inputContainer.replaceChild(textSpan, inputField);
                 document.getElementById('btn-step').disabled = false;
                 pendingInputField = null;
                 pendingInputResolve = null;
-                resolve(val);
+                // 문자 입력: 빈 입력(엔터만) → null(건너뜀 신호)
+                resolve(val.length > 0 ? val : (isChar ? null : '0'));
             }
         });
     });
@@ -196,12 +193,11 @@ function getValFromTokens(toks) {
     function parseAtom() {
         let t = consume();
         if (!t) return 0;
-    
+
         if (t.type === 'bracket' && t.val === '아') {
             let res = parseExpr();
-            // 어를 소비하기 전에 peek로 확인
             if (peek() && peek().type === 'bracket' && peek().val === '어') {
-                consume(); // 어 소비
+                consume();
             }
             while (peek() && peek().type === 'geo') {
                 const geoTok = consume();
@@ -211,7 +207,7 @@ function getValFromTokens(toks) {
             }
             return res;
         }
-    
+
         if (t.type === 'num') {
             let val = t.val.length;
             while (peek() && peek().type === 'geo') {
@@ -222,7 +218,7 @@ function getValFromTokens(toks) {
             }
             return val;
         }
-    
+
         return 0;
     }
 
@@ -295,12 +291,17 @@ async function takeStep() {
                 }
                 else if (cmdVal === '진짜뭐지') {
                     const targetAddr = getLeftAddr();
-                    const val = await requestConsoleInput(`[${targetAddr}번] 문자 입력:`);
-                    if (val === null) return false;
-                    memory[targetAddr] = (val && val.length > 0) ? val.charCodeAt(0) : 0;
+                    let charCode = null;
+                    // 빈 입력(엔터=줄바꿈)은 건너뜀 — judge의 readChar와 동일 동작
+                    while (charCode === null) {
+                        const val = await requestConsoleInput(`[${targetAddr}번] 문자 입력:`, true);
+                        if (!isRunning && val === null) return false;
+                        if (val === null) continue;
+                        charCode = val.charCodeAt(0);
+                    }
+                    memory[targetAddr] = charCode;
                 }
                 else if (cmdVal === '진짜뭐냐') {
-                    // 변수 1개 → leftToks 사용
                     printOut(String.fromCharCode(getValFromTokens(leftToks)));
                 }
                 else if (cmdVal === '뭐지') {
@@ -310,11 +311,9 @@ async function takeStep() {
                     memory[targetAddr] = parseInt(val) || 0;
                 }
                 else if (cmdVal === '뭐냐') {
-                    // 변수 1개 → leftToks 사용
                     printOut(getValFromTokens(leftToks));
                 }
                 else if (cmdVal === '있잖아') {
-                    // 변수 1개 → leftToks 사용
                     pc += getValFromTokens(leftToks);
                     jumped = true;
                 }
