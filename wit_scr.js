@@ -176,7 +176,6 @@ function requestConsoleInput(promptMsg, isChar = false) {
                 document.getElementById('btn-step').disabled = false;
                 pendingInputField = null;
                 pendingInputResolve = null;
-                // 문자 입력: 빈 입력(엔터만) → null(건너뜀 신호)
                 resolve(val.length > 0 ? val : (isChar ? null : '0'));
             }
         });
@@ -191,6 +190,9 @@ function getValFromTokens(toks) {
     const peek    = () => toks[pos];
 
     function parseAtom() {
+        // 어는 소비하지 않고 0 반환 — 바깥 아...어 핸들러가 명시적으로 소비
+        if (peek() && peek().type === 'bracket' && peek().val === '어') return 0;
+
         let t = consume();
         if (!t) return 0;
 
@@ -295,7 +297,7 @@ async function takeStep() {
                     // 빈 입력(엔터=줄바꿈)은 건너뜀 — judge의 readChar와 동일 동작
                     while (charCode === null) {
                         const val = await requestConsoleInput(`[${targetAddr}번] 문자 입력:`, true);
-                        if (!isRunning && val === null) return false;
+                        if (!isRunning) return false;
                         if (val === null) continue;
                         charCode = val.charCodeAt(0);
                     }
