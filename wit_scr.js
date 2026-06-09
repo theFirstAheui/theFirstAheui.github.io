@@ -32,14 +32,13 @@ function log(msg, color="#50fa7b") {
 }
 
 // --- 주소 해결기 ---
-// 아어거 포함 처리: num → 주소 설정, geo → dereference, bracket(아/어)은 무시
+// 값 파서(getValFromTokens)를 그대로 사용한다.
+// 이유: 아...어(거) 같은 괄호 수식, 괄호 안 연산자, 다중 거(거거) 를
+// 주소 위치에서도 값 위치와 완전히 동일하게 처리하기 위함.
+// L-value 평가 결과 = 주소이고, 대입 시 memory[addr]=... 로 한 단계 더 참조됨.
+// (예) 아어 -> 0, 아어거 -> memory[0], 그그거 -> memory[2] 로 일관 동작.
 function resolveAddrFromTokens(tokens) {
-    let addr = 0;
-    for (const t of tokens) {
-        if (t.type === 'num')      addr = t.val.length;
-        else if (t.type === 'geo') addr = memory[addr] ?? 0;
-    }
-    return addr;
+    return getValFromTokens(tokens);
 }
 
 function resolveAddr(memStr) {
