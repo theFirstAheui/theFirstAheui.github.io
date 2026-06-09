@@ -101,6 +101,10 @@ class Interp {
     const self = this;
 
     function parseAtom() {
+      // 빈 괄호(아어)·아…어거 처리: '어'를 만나면 소비하지 말고 0 반환.
+      // 닫는 '어'는 바깥 '아' 핸들러가 명시적으로 소비한다.
+      if (peek() && peek().type === "bracket" && peek().val === "어") return 0;
+
       const t = consume();
       if (!t) return 0;
 
